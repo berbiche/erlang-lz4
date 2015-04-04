@@ -65,9 +65,8 @@ pack(Binary) ->
 pack(Binary, Options) ->
     case compress(Binary, Options) of
         {ok, Compressed} ->
-            OrigSize = byte_size(Binary),
-            {ok, <<OrigSize:4/little-unsigned-integer-unit:8,
-                Compressed/binary>>};
+            OrigSize = size(Binary),
+            {ok, <<OrigSize:32/unsigned-integer, Compressed/binary>>};
         Error ->
             Error
     end.
@@ -75,6 +74,5 @@ pack(Binary, Options) ->
 %% @doc Return a uncompressed binary compressed with `pack/2'.
 %% @see pack/2
 -spec unpack(pack()) -> {ok, binary()} | {error, term()}.
-unpack(<<OrigSize:4/little-unsigned-integer-unit:8, Binary/binary>>=_Binary) ->
+unpack(<<OrigSize:32/unsigned-integer, Binary/binary>>=_Binary) ->
     uncompress(Binary, OrigSize).
-
